@@ -3,7 +3,8 @@ import { useLocation } from "wouter";
 import AuthLayout from "@/components/AuthLayout";
 import LoginForm from "@/components/LoginForm";
 import { useToast } from "@/hooks/use-toast";
-import type { LoginUsuario } from "@shared/schema";
+import { apiRequest } from "@/lib/queryClient";
+import type { LoginUsuario, Usuario } from "@shared/schema";
 
 export default function Login() {
   const [, setLocation] = useLocation();
@@ -14,35 +15,30 @@ export default function Login() {
     setIsLoading(true);
     
     try {
-      console.log('Login:', data);
+      const usuario = await apiRequest<Usuario>("/api/login", {
+        method: "POST",
+        body: JSON.stringify(data),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
       
-      // Simulação de login bem-sucedido
-      setTimeout(() => {
-        // Armazenar dados do usuário
-        const usuarioMock = {
-          id: "1",
-          nome: "Usuário Teste",
-          nomeUsuario: data.nomeUsuario,
-          email: data.email,
-        };
-        
-        localStorage.setItem("usuario", JSON.stringify(usuarioMock));
-        
-        toast({
-          title: "Login realizado!",
-          description: "Bem-vindo ao sistema.",
-        });
-        
-        setLocation("/home");
-        setIsLoading(false);
-      }, 1000);
-    } catch (error) {
-      setIsLoading(false);
+      localStorage.setItem("usuario", JSON.stringify(usuario));
+      
+      toast({
+        title: "Login realizado!",
+        description: "Bem-vindo ao sistema.",
+      });
+      
+      setLocation("/home");
+    } catch (error: any) {
       toast({
         title: "Erro ao fazer login",
-        description: "Verifique suas credenciais e tente novamente.",
+        description: error.message || "Verifique suas credenciais e tente novamente.",
         variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 

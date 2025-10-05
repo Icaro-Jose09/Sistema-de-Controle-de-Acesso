@@ -3,7 +3,8 @@ import { useLocation } from "wouter";
 import AuthLayout from "@/components/AuthLayout";
 import CadastroForm from "@/components/CadastroForm";
 import { useToast } from "@/hooks/use-toast";
-import type { InsertUsuario } from "@shared/schema";
+import { apiRequest } from "@/lib/queryClient";
+import type { InsertUsuario, Usuario } from "@shared/schema";
 
 export default function Cadastro() {
   const [, setLocation] = useLocation();
@@ -14,25 +15,28 @@ export default function Cadastro() {
     setIsLoading(true);
     
     try {
-      console.log('Cadastro:', data);
+      await apiRequest<Usuario>("/api/usuarios", {
+        method: "POST",
+        body: JSON.stringify(data),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
       
-      // Simulação de cadastro bem-sucedido
-      setTimeout(() => {
-        toast({
-          title: "Cadastro realizado!",
-          description: "Sua conta foi criada com sucesso. Faça login para continuar.",
-        });
-        
-        setLocation("/login");
-        setIsLoading(false);
-      }, 1000);
-    } catch (error) {
-      setIsLoading(false);
+      toast({
+        title: "Cadastro realizado!",
+        description: "Sua conta foi criada com sucesso. Faça login para continuar.",
+      });
+      
+      setLocation("/login");
+    } catch (error: any) {
       toast({
         title: "Erro ao cadastrar",
-        description: "Ocorreu um erro. Tente novamente.",
+        description: error.message || "Ocorreu um erro. Tente novamente.",
         variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
