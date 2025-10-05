@@ -15,13 +15,7 @@ export default function Cadastro() {
     setIsLoading(true);
     
     try {
-      await apiRequest<Usuario>("/api/usuarios", {
-        method: "POST",
-        body: JSON.stringify(data),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      await apiRequest("POST", "/api/usuarios", data);
       
       toast({
         title: "Cadastro realizado!",

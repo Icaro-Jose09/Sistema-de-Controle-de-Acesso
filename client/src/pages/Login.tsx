@@ -15,13 +15,8 @@ export default function Login() {
     setIsLoading(true);
     
     try {
-      const usuario = await apiRequest<Usuario>("/api/login", {
-        method: "POST",
-        body: JSON.stringify(data),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await apiRequest("POST", "/api/login", data);
+      const usuario: Usuario = await response.json();
       
       localStorage.setItem("usuario", JSON.stringify(usuario));
       
